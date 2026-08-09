@@ -113,7 +113,6 @@ async function enviarAlertaEmergencia() {
     const btn = document.querySelector('.btn-emergency') || document.getElementById('btnEmergencia');
     btn.textContent = '⏳ Enviando...';
     btn.disabled = true;
-
     try {
         const res = await fetch(`${API_URL}/signos/${userData.id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
