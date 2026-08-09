@@ -1,0 +1,14 @@
+{
+    "name": "SAFEWATCH - Cuidado Inteligente",
+    "short_name": "SAFEWATCH",
+    "description": "Monitoreo de salud para adultos mayores",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#06060e",
+    "theme_color": "#00e6a0",
+    "orientation": "portrait",
+    "icons": [
+        { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    ]
+}

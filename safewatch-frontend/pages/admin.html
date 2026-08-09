@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#00e6a0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SAFEWATCH">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFEWATCH - Panel Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #06060e; --card: rgba(255,255,255,0.02); --border: rgba(255,255,255,0.06);
+            --green: #00e6a0; --blue: #4d94ff; --red: #ff4757; --text: #fff; --text2: #8892a4;
+            --gradient: linear-gradient(135deg, #00e6a0, #4d94ff);
+            --radius: 24px; --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(6,6,14,0.85); backdrop-filter: blur(30px);
+            padding: 0.9rem 2rem; border-bottom: 1px solid var(--border);
+        }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.6rem; }
+        .logo-icon { width: 40px; height: 40px; border-radius: 14px; background: var(--gradient); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 8px 32px rgba(0,230,160,0.15); }
+        .logo-text { font-size: 1.3rem; font-weight: 700; color: var(--green); }
+        .user-area { display: flex; align-items: center; gap: 1rem; }
+        .admin-badge { background: rgba(77,148,255,0.1); color: var(--blue); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; }
+        .btn-logout { background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.2); padding: 0.5rem 1.2rem; border-radius: 50px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: var(--transition); }
+        .btn-logout:hover { background: rgba(255,71,87,0.2); }
+
+        .dashboard { max-width: 1400px; margin: 80px auto 0; padding: 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; }
+        .page-title i { color: var(--green); margin-right: 0.5rem; }
+        .page-stats { display: flex; gap: 1.5rem; }
+        .page-stat { text-align: center; }
+        .page-stat-value { font-size: 1.5rem; font-weight: 700; color: var(--green); }
+        .page-stat-label { font-size: 0.75rem; color: var(--text2); }
+        .btn-primary { background: var(--gradient); color: #fff; border: none; padding: 0.7rem 1.5rem; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: var(--transition); display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 20px rgba(0,230,160,0.2); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,230,160,0.3); }
+
+        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .table-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .table-header h3 { font-size: 1rem; font-weight: 600; }
+        .search-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 50px; color: var(--text); font-size: 0.85rem; width: 250px; font-family: 'Poppins', sans-serif; }
+        .search-box:focus { outline: none; border-color: var(--green); }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+        tbody td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tbody tr { transition: var(--transition); }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        .patient-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--gradient); display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 0.8rem; vertical-align: middle; }
+        .badge { display: inline-block; padding: 0.2rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 500; }
+        .badge-success { background: rgba(0,230,160,0.1); color: var(--green); }
+        .badge-warning { background: rgba(255,165,2,0.1); color: #ffa502; }
+        .btn-icon { width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.85rem; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; margin: 0 0.2rem; }
+        .btn-edit { background: rgba(77,148,255,0.1); color: var(--blue); }
+        .btn-edit:hover { background: rgba(77,148,255,0.2); }
+        .btn-delete { background: rgba(255,71,87,0.1); color: var(--red); }
+        .btn-delete:hover { background: rgba(255,71,87,0.2); }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text2); }
+
+        .modal-overlay { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #0d0d1a; border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h2 { font-size: 1.3rem; font-weight: 600; }
+        .modal-close { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .modal-close:hover { color: var(--red); border-color: var(--red); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; color: var(--text2); font-size: 0.8rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-size: 0.9rem; font-family: 'Poppins', sans-serif; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--green); }
+        select { color: #fff !important; background: #0d0d1a !important; }
+        select option { background: #0d0d1a !important; color: #fff !important; }
+        .btn-submit { width: 100%; padding: 0.9rem; border-radius: 12px; border: none; background: var(--gradient); color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; transition: var(--transition); }
+        .btn-submit:hover { box-shadow: 0 8px 30px rgba(0,230,160,0.3); }
+        .alert { text-align: center; padding: 0.8rem; border-radius: 12px; margin-bottom: 1rem; font-size: 0.85rem; display: none; }
+        .alert-success { background: rgba(0,230,160,0.1); color: var(--green); display: block; }
+        .alert-error { background: rgba(255,71,87,0.1); color: var(--red); display: block; }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; text-align: center; }
+            .search-box { width: 100%; }
+            thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
+                <span class="logo-text">SAFEWATCH</span>
+            </div>
+            <div class="user-area">
+                <span class="admin-badge"><i class="fas fa-shield-alt"></i> ADMIN</span>
+                <button class="btn-logout" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-users"></i>Gestión de Pacientes</h1>
+                <div class="page-stats" style="margin-top:0.5rem;">
+                    <div class="page-stat"><div class="page-stat-value" id="totalPacientes">0</div><div class="page-stat-label">Pacientes</div></div>
+                    <div class="page-stat"><div class="page-stat-value" id="totalActivos">0</div><div class="page-stat-label">Activos</div></div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="abrirFormulario()"><i class="fas fa-plus"></i> Nuevo Paciente</button>
+        </div>
+
+        <div id="mensaje" class="alert"></div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Lista de Pacientes</h3>
+                <input type="text" class="search-box" placeholder="🔍 Buscar por nombre o DNI..." oninput="filtrarPacientes(this.value)">
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Paciente</th><th>DNI</th><th>Edad</th><th>Sangre</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tablaPacientes">
+                    <tr><td colspan="6"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Cargando...</p></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalPaciente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="tituloFormulario">Nuevo Paciente</h2>
+                <button class="modal-close" onclick="cerrarFormulario()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="formPaciente" onsubmit="guardarPaciente(event)">
+                <input type="hidden" id="pacienteId">
+                <div class="form-row">
+                    <div class="form-group"><label>DNI *</label><input type="text" id="formDni" required></div>
+                    <div class="form-group"><label>Contraseña</label><input type="password" id="formPassword" placeholder="Dejar vacío para no cambiar"></div>
+                </div>
+                <div class="form-group"><label>Nombre Completo *</label><input type="text" id="formNombre" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Fecha Nacimiento</label><input type="date" id="formFechaNac"></div>
+                    <div class="form-group"><label>Tipo Sangre</label>
+                        <select id="formSangre"><option value="">Seleccionar</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Peso (kg)</label><input type="number" step="0.1" id="formPeso"></div>
+                    <div class="form-group"><label>Altura (m)</label><input type="number" step="0.01" id="formAltura"></div>
+                </div>
+                <div class="form-group"><label>Alergias</label><input type="text" id="formAlergias" placeholder="Ej: Penicilina, Ibuprofeno"></div>
+                <div class="form-group"><label>Medicación Actual</label><input type="text" id="formMedicacion" placeholder="Ej: Enalapril 10mg cada 12hrs"></div>
+                <div class="form-group"><label>Diagnósticos (coma)</label><input type="text" id="formDiagnosticos" placeholder="Ej: Hipertensión, Diabetes"></div>
+                <button type="submit" class="btn-submit" id="btnGuardar"><i class="fas fa-save"></i> Guardar Paciente</button>
+            </form>
+        </div>
+    </div>
+    <script src="../js/admin.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+</script>
+</body>
+</html>

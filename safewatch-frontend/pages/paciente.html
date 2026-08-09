@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#00e6a0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SAFEWATCH">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFEWATCH - Mi Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --bg: #06060e;
+            --card: rgba(255,255,255,0.02);
+            --border: rgba(255,255,255,0.06);
+            --green: #00e6a0;
+            --blue: #4d94ff;
+            --red: #ff4757;
+            --text: #fff;
+            --text2: #8892a4;
+            --gradient: linear-gradient(135deg, #00e6a0, #4d94ff);
+            --gradient-red: linear-gradient(135deg, #ff4757, #ff6b81);
+            --shadow-green: 0 8px 32px rgba(0,230,160,0.15);
+            --shadow-red: 0 8px 32px rgba(255,71,87,0.2);
+            --radius: 24px;
+            --radius-sm: 16px;
+            --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text);
+            min-height: 100vh; background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(0,230,160,0.03) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 60%, rgba(77,148,255,0.03) 0%, transparent 60%);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(6,6,14,0.85); backdrop-filter: blur(30px);
+            padding: 0.9rem 2rem; border-bottom: 1px solid var(--border);
+        }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-icon {
+            width: 40px; height: 40px; border-radius: 14px; background: var(--gradient);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            box-shadow: var(--shadow-green);
+        }
+        .logo-text { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .user-area { display: flex; align-items: center; gap: 1.2rem; }
+        .user-name { color: var(--text2); font-size: 0.9rem; }
+        .btn-logout {
+            background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.2);
+            padding: 0.5rem 1.2rem; border-radius: 50px; cursor: pointer; font-weight: 500;
+            font-size: 0.85rem; transition: var(--transition);
+        }
+        .btn-logout:hover { background: rgba(255,71,87,0.2); }
+
+        /* DASHBOARD */
+        .dashboard { max-width: 1400px; margin: 80px auto 0; padding: 2rem; display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; }
+
+        /* SIDEBAR */
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .profile-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 2rem; text-align: center; position: relative; overflow: hidden;
+        }
+        .profile-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--gradient);
+        }
+        .profile-avatar {
+            width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1.2rem;
+            background: var(--gradient); display: flex; align-items: center;
+            justify-content: center; font-size: 2.5rem; overflow: hidden;
+            border: 3px solid rgba(0,230,160,0.3); cursor: pointer; position: relative;
+            box-shadow: var(--shadow-green);
+        }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-edit {
+            position: absolute; bottom: 0; right: 0; width: 28px; height: 28px;
+            background: var(--green); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 0.7rem;
+            border: 2px solid var(--bg);
+        }
+        .profile-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.3rem; }
+        .profile-dni { color: var(--text2); font-size: 0.85rem; margin-bottom: 0.8rem; }
+        .profile-status {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(0,230,160,0.1); color: var(--green);
+            padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.75rem; font-weight: 500;
+        }
+        .profile-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        .info-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+        .info-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 1rem; }
+        .info-row { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--text2); font-size: 0.85rem; }
+        .info-value { color: var(--text); font-weight: 500; font-size: 0.85rem; }
+
+        /* MAIN */
+        .main { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        .vitals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .vital-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 1.5rem; position: relative; overflow: hidden; transition: var(--transition);
+        }
+        .vital-card:hover { border-color: rgba(0,230,160,0.2); transform: translateY(-2px); }
+        .vital-card::after {
+            content: ''; position: absolute; bottom: -20px; right: -20px;
+            width: 80px; height: 80px; border-radius: 50%; opacity: 0.05;
+        }
+        .vital-card.heart::after { background: var(--red); }
+        .vital-card.oxygen::after { background: var(--blue); }
+        .vital-card.temp::after { background: #ffa502; }
+        .vital-icon {
+            width: 45px; height: 45px; border-radius: 14px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1rem;
+        }
+        .vital-icon.heart { background: rgba(255,71,87,0.1); color: var(--red); }
+        .vital-icon.oxygen { background: rgba(77,148,255,0.1); color: var(--blue); }
+        .vital-icon.temp { background: rgba(255,165,2,0.1); color: #ffa502; }
+        .vital-value { font-size: 2.5rem; font-weight: 700; letter-spacing: -1px; }
+        .vital-unit { font-size: 1rem; font-weight: 400; color: var(--text2); }
+        .vital-label { color: var(--text2); font-size: 0.8rem; margin-top: 0.3rem; }
+
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .chart-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem;
+        }
+        .chart-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-weight: 600; font-size: 0.95rem; }
+        .chart-header i { color: var(--green); }
+
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .map-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem;
+        }
+        #mapa { height: 220px; border-radius: var(--radius-sm); z-index: 1; }
+
+        .emergency-section { display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+        .btn-emergency {
+            width: 100%; padding: 1.1rem; border-radius: 50px; border: none;
+            background: var(--gradient-red); color: #fff; font-size: 1rem; font-weight: 700;
+            cursor: pointer; box-shadow: var(--shadow-red); transition: var(--transition);
+            letter-spacing: 0.5px; position: relative; overflow: hidden;
+        }
+        .btn-emergency:hover { transform: scale(1.02); }
+        .btn-emergency::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0%{transform:translate(-100%,-100%)} 100%{transform:translate(100%,100%)} }
+
+        /* CHAT */
+        .chat-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem;
+            display: flex; flex-direction: column; max-height: 400px;
+        }
+        .chat-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+        .chat-avatar {
+            width: 36px; height: 36px; border-radius: 50%; background: var(--gradient);
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+        .chat-status { margin-left: auto; font-size: 0.75rem; color: var(--text2); }
+        .chat-messages { flex: 1; overflow-y: auto; margin-bottom: 1rem; padding-right: 0.5rem; }
+        .msg { margin-bottom: 1rem; display: flex; gap: 0.5rem; }
+        .msg.user { flex-direction: row-reverse; }
+        .msg-bubble {
+            max-width: 75%; padding: 0.8rem 1rem; border-radius: 18px; font-size: 0.85rem; line-height: 1.4;
+        }
+        .msg.user .msg-bubble { background: var(--gradient); color: #fff; border-bottom-right-radius: 6px; }
+        .msg.bot .msg-bubble { background: rgba(255,255,255,0.04); color: var(--text); border-bottom-left-radius: 6px; }
+        .msg-avatar {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+        }
+        .msg.user .msg-avatar { background: rgba(77,148,255,0.2); color: var(--blue); }
+        .msg.bot .msg-avatar { background: rgba(0,230,160,0.2); color: var(--green); }
+        .chat-input-area { display: flex; gap: 0.5rem; }
+        .chat-input-area input {
+            flex: 1; padding: 0.8rem 1rem; border-radius: 50px;
+            border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+            color: var(--text); font-size: 0.85rem; font-family: 'Poppins', sans-serif;
+        }
+        .chat-input-area input:focus { outline: none; border-color: var(--green); }
+        .chat-input-area button {
+            padding: 0.8rem; border-radius: 50%; border: none; cursor: pointer;
+            font-size: 1rem; transition: var(--transition); width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-mic { background: rgba(77,148,255,0.1); color: var(--blue); }
+        .btn-mic:hover { background: rgba(77,148,255,0.2); }
+        .btn-send { background: var(--gradient); color: #fff; }
+        .btn-send:hover { box-shadow: var(--shadow-green); }
+
+        @media (max-width: 1200px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .sidebar { display: grid; grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { grid-template-columns: 1fr; }
+            .vitals-grid { grid-template-columns: 1fr; }
+            .charts-grid, .bottom-grid { grid-template-columns: 1fr; }
+            .dashboard { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
+                <span class="logo-text">SAFEWATCH</span>
+            </div>
+            <div class="user-area">
+                <span class="user-name" id="nombreUsuario"></span>
+                <button class="btn-logout" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar" onclick="document.getElementById('inputFoto').click()">
+                    <img id="avatarImg" src="" style="display:none;">
+                    <span id="avatarInicial">👵</span>
+                    <div class="avatar-edit"><i class="fas fa-camera"></i></div>
+                    <input type="file" id="inputFoto" accept="image/*" style="display:none;" onchange="subirFoto(event)">
+                </div>
+                <div class="profile-name" id="perfilNombre">Cargando...</div>
+                <div class="profile-dni" id="perfilDni">DNI: --</div>
+                <div class="profile-status"><span class="profile-dot"></span> Conectado</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-title">Información Médica</div>
+                <div class="info-row"><span class="info-label">Edad</span><span class="info-value" id="infoEdad">--</span></div>
+                <div class="info-row"><span class="info-label">Peso</span><span class="info-value" id="infoPeso">-- kg</span></div>
+                <div class="info-row"><span class="info-label">Altura</span><span class="info-value" id="infoAltura">-- m</span></div>
+                <div class="info-row"><span class="info-label">Sangre</span><span class="info-value" id="infoSangre">--</span></div>
+                <div class="info-row"><span class="info-label">Alergias</span><span class="info-value" id="infoAlergias">--</span></div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+
+            <!-- SIGNOS -->
+            <div class="vitals-grid">
+                <div class="vital-card heart">
+                    <div class="vital-icon heart"><i class="fas fa-heart"></i></div>
+                    <div class="vital-value" id="ritmoCardiaco">--<span class="vital-unit"> lpm</span></div>
+                    <div class="vital-label">Ritmo Cardíaco</div>
+                </div>
+                <div class="vital-card oxygen">
+                    <div class="vital-icon oxygen"><i class="fas fa-lungs"></i></div>
+                    <div class="vital-value" id="oxigeno">--<span class="vital-unit">%</span></div>
+                    <div class="vital-label">Oxígeno en Sangre</div>
+                </div>
+                <div class="vital-card temp">
+                    <div class="vital-icon temp"><i class="fas fa-thermometer-half"></i></div>
+                    <div class="vital-value" id="temperatura">--<span class="vital-unit">°C</span></div>
+                    <div class="vital-label">Temperatura Corporal</div>
+                </div>
+            </div>
+
+            <!-- GRÁFICOS -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header"><i class="fas fa-heart"></i> Ritmo Cardíaco</div>
+                    <canvas id="chartCardiaco"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><i class="fas fa-lungs"></i> Oxígeno en Sangre</div>
+                    <canvas id="chartOxigeno"></canvas>
+                </div>
+            </div>
+
+            <!-- MAPA + TEMP -->
+            <div class="bottom-grid">
+                <div class="map-card">
+                    <div class="chart-header"><i class="fas fa-map-marker-alt"></i> Ubicación</div>
+                    <div id="mapa"></div>
+                    <p id="direccionActual" style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.75rem;">Obteniendo...</p>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><i class="fas fa-thermometer-half"></i> Temperatura</div>
+                    <canvas id="chartTemperatura"></canvas>
+                </div>
+            </div>
+
+            <!-- EMERGENCIA -->
+            <div class="emergency-section">
+                <button class="btn-emergency" onclick="enviarAlertaEmergencia()">🆘 ALERTA DE EMERGENCIA</button>
+            </div>
+
+            <!-- CHAT -->
+            <div class="chat-card">
+                <div class="chat-header">
+                    <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+                    <span style="font-weight:600;">BROCK</span>
+                    <span class="chat-status" id="estadoEscucha">Voz inactiva</span>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="msg bot">
+                        <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+                        <div class="msg-bubble">¡Hola! Soy BROCK, tu asistente de salud. Di mi nombre para hablar conmigo.</div>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <button class="btn-mic" id="btnVoz" onclick="toggleVoz()"><i class="fas fa-microphone"></i></button>
+                    <input type="text" id="chatInput" placeholder="Escribe o di BROCK..." onkeypress="if(event.key==='Enter')enviarMensaje()">
+                    <button class="btn-send" onclick="enviarMensaje()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/voz.js"></script>
+    <script src="../js/charts.js"></script>
+    <script src="../js/mapa.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+    }
+</script>
+</body>
+</html>
