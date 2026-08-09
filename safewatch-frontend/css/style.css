@@ -556,3 +556,14 @@ select option {
         font-size: 1.1rem !important;
     }
 }
+@media all and (display-mode: standalone) {
+    .dashboard { grid-template-columns: 1fr !important; padding: 0.5rem !important; margin-top: 50px !important; }
+    .vitals-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 0.5rem !important; }
+    .vital-card { padding: 0.8rem !important; }
+    .vital-value { font-size: 1.4rem !important; }
+    .charts-grid, .bottom-grid { grid-template-columns: 1fr !important; }
+    #mapa { height: 150px !important; }
+    .chat-card { max-height: 280px !important; }
+    .navbar { padding: 0.5rem 1rem !important; }
+    .profile-avatar { width: 60px !important; height: 60px !important; font-size: 1.5rem !important; }
+}
