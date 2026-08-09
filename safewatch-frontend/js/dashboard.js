@@ -111,7 +111,11 @@ async function enviarMensaje() {
 
 async function enviarAlertaEmergencia() {
     const btn = document.querySelector('.btn-emergency') || document.getElementById('btnEmergencia');
-    btn.textContent = '⏳ Enviando...';
+    if (!btn) {
+    alert('Error: Botón no encontrado. Recarga la página.');
+    return;
+    }
+    btn.textContent = 'Enviando...';
     btn.disabled = true;
     try {
         const res = await fetch(`${API_URL}/signos/${userData.id}`, {
