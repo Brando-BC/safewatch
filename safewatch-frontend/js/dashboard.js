@@ -110,7 +110,7 @@ async function enviarMensaje() {
 }
 
 async function enviarAlertaEmergencia() {
-    const btn = document.getElementById('btnEmergencia');
+    const btn = document.querySelector('.btn-emergency') || document.getElementById('btnEmergencia');
     btn.textContent = '⏳ Enviando...';
     btn.disabled = true;
 
