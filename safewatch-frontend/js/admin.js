@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://safewatch-backend-9rq6.onrender.com/api';
 const token = localStorage.getItem('safewatch_token');
 
 if (!token) window.location.href = '../index.html';

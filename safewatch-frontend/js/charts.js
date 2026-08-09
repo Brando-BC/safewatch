@@ -8,7 +8,7 @@ let chartTemperatura = null;
 
 async function cargarGraficos() {
     try {
-        const response = await fetch(`http://localhost:3000/api/signos/${userDataChart.id}`, {
+        const response = await fetch(`https://safewatch-backend-9rq6.onrender.com/api/signos/${userDataChart.id}`, {
             headers: { 'Authorization': `Bearer ${tokenChart}` }
         });
         const signos = await response.json();
