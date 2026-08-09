@@ -522,3 +522,37 @@ select option {
         font-size: 4rem;
     }
 }
+@media (max-width: 768px) {
+    .dashboard {
+        grid-template-columns: 1fr !important;
+        padding: 0.5rem !important;
+        margin-top: 60px !important;
+    }
+    .sidebar {
+        grid-template-columns: 1fr !important;
+    }
+    .vitals-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.8rem !important;
+    }
+    .charts-grid, .bottom-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .chat-card {
+        max-height: 350px !important;
+    }
+    .vital-value {
+        font-size: 1.8rem !important;
+    }
+    .profile-avatar {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 1.8rem !important;
+    }
+    .navbar {
+        padding: 0.7rem 1rem !important;
+    }
+    .logo {
+        font-size: 1.1rem !important;
+    }
+}
