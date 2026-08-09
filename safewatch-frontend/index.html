@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#00e6a0">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SAFEWATCH">
     <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
-    <meta charset="UTF-8">
     <title>SAFEWATCH - Cuidado Inteligente para Adultos Mayores</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -157,6 +158,24 @@
             .features-grid { grid-template-columns: 1fr; }
             .watch-mockup { width: 250px; height: 250px; }
         }
+        @media (max-width: 480px) {
+            .hero-content h1 { font-size: 2rem !important; }
+            .hero-content p { font-size: 0.9rem !important; }
+            .hero-stats { gap: 1rem !important; }
+            .hero-stat h3 { font-size: 1.5rem !important; }
+            .watch-mockup { width: 180px !important; height: 180px !important; }
+            .watch-mockup i { font-size: 4rem !important; }
+            .navbar { padding: 0.7rem 1rem !important; }
+            .logo { font-size: 1.2rem !important; }
+            .logo i { font-size: 1.5rem !important; }
+            .btn-login { padding: 0.5rem 1rem !important; font-size: 0.8rem !important; }
+            .section { padding: 3rem 1rem !important; }
+            .section-title { font-size: 1.8rem !important; }
+            .sensors-grid { grid-template-columns: 1fr !important; }
+            .features-grid { grid-template-columns: 1fr !important; }
+            .feature-item { flex-direction: column !important; text-align: center !important; }
+            .modal-content { margin: 10% auto !important; padding: 1.5rem !important; }
+            }
     </style>
 </head>
 <body>
