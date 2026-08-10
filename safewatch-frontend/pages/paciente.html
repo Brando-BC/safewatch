@@ -272,73 +272,7 @@
     .chat-status { font-size: 0.65rem !important; }
     .btn-mic, .btn-send { width: 34px !important; height: 34px !important; }
 }
-/* ============================================ */
-/* MODO APP NATIVA (SOLO PWA INSTALADA)         */
-/* ============================================ */
-@media all and (display-mode: standalone) {
-    body { background: #000; }
-    
-    .navbar { 
-        background: #0a0a14 !important; 
-        padding: 0.5rem 1rem !important;
-        border-bottom: 2px solid var(--green) !important;
-    }
-    
-    .dashboard {
-        padding: 0.3rem !important;
-        margin-top: 50px !important;
-        gap: 0.6rem !important;
-    }
-    
-    .sidebar { display: none !important; }
-    
-    .main { gap: 0.6rem !important; }
-    
-    .vitals-grid {
-        position: sticky;
-        top: 50px;
-        z-index: 100;
-        background: #0a0a14;
-        padding: 0.5rem;
-        border-radius: 0 0 15px 15px;
-        margin: -0.3rem -0.3rem 0 -0.3rem;
-    }
-    
-    .charts-grid, .bottom-grid { display: none !important; }
-    
-    .chat-card {
-        border-radius: 20px 20px 0 0 !important;
-        max-height: 50vh !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 200 !important;
-        margin: 0 !important;
-    }
-    
-    .btn-emergency {
-        position: fixed;
-        bottom: 52vh;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 400px;
-        z-index: 150;
-        border-radius: 30px;
-        padding: 0.8rem;
-        font-size: 0.9rem;
-    }
-    
-    .btn-logout { display: none !important; }
-    
-    /* Navegación inferior tipo app */
-    .main::after {
-        content: '';
-        display: block;
-        height: 45vh;
-    }
-}
+
 </style>
 </head>
 <body>
