@@ -51,27 +51,6 @@ function initMapa() {
             mapa.setView([lat, lon], mapa.getZoom());
             window.ultimaUbicacion = { lat, lon, precision };
 
-            // ============================================
-            // GUARDAR UBICACIÓN EN SUPABASE
-            // ============================================
-            const token = localStorage.getItem('safewatch_token');
-            const userData = JSON.parse(localStorage.getItem('safewatch_user') || '{}');
-            
-            if (token && userData.id) {
-                fetch('https://safewatch-backend-9rq6.onrender.com/api/signos/ubicacion', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        paciente_id: userData.id,
-                        lat: lat,
-                        lon: lon
-                    })
-                }).catch(() => {});
-            }
-
             // OBTENER DIRECCIÓN REAL (CALLE)
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=es&zoom=18`)
                 .then(r => r.json())
