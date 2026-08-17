@@ -32,6 +32,25 @@ router.post('/enviar', async (req, res) => {
             return res.status(404).json({ error: 'Paciente no encontrado' });
         }
 
+        // NUEVO: Si no llega ubicación, buscar la última guardada
+        let ubicacionFinal = ubicacion || null;
+        if (!ubicacionFinal) {
+            const { data: ubicacionData } = await supabase
+                .from('ubicacion_paciente')
+                .select('lat, lon')
+                .eq('paciente_id', paciente_id)
+                .order('actualizada_en', { ascending: false })
+                .limit(1)
+                .single();
+            if (ubicacionData) {
+                ubicacionFinal = { 
+                    lat: parseFloat(ubicacionData.lat), 
+                    lon: parseFloat(ubicacionData.lon) 
+                };
+                console.log('Ubicación guardada encontrada:', ubicacionFinal);
+            }
+        }
+
         // Guardar alerta en la base de datos
         const { data: alerta, error: errorAlerta } = await supabase
             .from('alertas')
@@ -41,8 +60,8 @@ router.post('/enviar', async (req, res) => {
                 gravedad: 'alta',
                 mensaje: `Alerta de ${tipo} detectada`,
                 signos_snapshot: signos || {},
-                ubicacion_lat: ubicacion?.lat || null,
-                ubicacion_lon: ubicacion?.lon || null
+                ubicacion_lat: ubicacionFinal?.lat || null,
+                ubicacion_lon: ubicacionFinal?.lon || null
             })
             .select()
             .single();
@@ -51,17 +70,21 @@ router.post('/enviar', async (req, res) => {
             return res.status(500).json({ error: 'Error guardando alerta' });
         }
 
-        // Enviar WhatsApp al contacto de emergencia
+        // Enviar WhatsApp con ubicación correcta
         const datosPaciente = {
             nombre: paciente.nombre_completo,
-            edad: paciente.edad
+            edad: paciente.edad,
+            tipo_sangre: paciente.tipo_sangre,
+            alergias: paciente.alergias,
+            diagnosticos: paciente.diagnosticos?.join(', '),
+            medicacion: paciente.medicacion_actual
         };
 
         const resultado = await WhatsAppService.enviarAlerta(
             datosPaciente,
             tipo || 'emergencia',
             signos || {},
-            ubicacion
+            ubicacionFinal
         );
 
         res.json({

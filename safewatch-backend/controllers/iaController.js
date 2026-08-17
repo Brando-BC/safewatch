@@ -113,11 +113,26 @@ const iaController = {
                     signos_snapshot: signos || {}, whatsapp_enviado: true
                 });
 
-                await WhatsAppService.enviarAlerta(datosPaciente, tipoAlerta, {
-                    ritmo_cardiaco: signos?.ritmo_cardiaco || 'N/A',
-                    oxigeno_sangre: signos?.oxigeno_sangre || 'N/A',
-                    temperatura: signos?.temperatura || 'N/A'
-                }, ubicacion || null, diagnosticoFinal + '. Paciente refiere: ' + mensaje, datosPaciente.diagnosticos, datosPaciente.medicacion);
+// Buscar última ubicación guardada
+let ubicacionFinal = ubicacion || null;
+if (!ubicacionFinal) {
+    const { data: ubicacionData } = await supabase
+        .from('ubicacion_paciente')
+        .select('lat, lon')
+        .eq('paciente_id', paciente_id)
+        .order('actualizada_en', { ascending: false })
+        .limit(1)
+        .single();
+    if (ubicacionData) {
+        ubicacionFinal = { lat: parseFloat(ubicacionData.lat), lon: parseFloat(ubicacionData.lon) };
+    }
+}
+
+await WhatsAppService.enviarAlerta(datosPaciente, tipoAlerta, {
+    ritmo_cardiaco: signos?.ritmo_cardiaco || 'N/A',
+    oxigeno_sangre: signos?.oxigeno_sangre || 'N/A',
+    temperatura: signos?.temperatura || 'N/A'
+}, ubicacionFinal, diagnosticoFinal + '. Paciente refiere: ' + mensaje, datosPaciente.diagnosticos, datosPaciente.medicacion);
 
                 await supabase.from('conversaciones_ia').insert({
                     paciente_id, mensaje_usuario: mensaje, respuesta_ia: 'Alerta enviada. Diagnostico: ' + diagnosticoFinal
