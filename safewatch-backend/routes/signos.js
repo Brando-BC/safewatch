@@ -7,18 +7,23 @@ const supabase = require('../config/supabase');
 router.get('/:paciente_id', verificarToken, signosController.obtenerSignos);
 router.post('/', signosController.insertarSignos);
 
-// NUEVO: Guardar ubicación del paciente
 router.post('/ubicacion', verificarToken, async (req, res) => {
     try {
         const { paciente_id, lat, lon } = req.body;
+        console.log('Guardando ubicación:', { paciente_id, lat, lon });
 
         const { data, error } = await supabase
             .from('ubicacion_paciente')
             .upsert({ paciente_id, lat, lon, actualizada_en: new Date() }, { onConflict: 'paciente_id' });
 
-        if (error) return res.status(500).json({ error: error.message });
-        res.json({ success: true });
+        if (error) {
+            console.log('Error Supabase:', error.message);
+            return res.status(500).json({ error: error.message });
+        }
+
+        res.json({ success: true, data });
     } catch (e) {
+        console.log('Error:', e.message);
         res.status(500).json({ error: e.message });
     }
 });
